@@ -1,13 +1,21 @@
-// main screen - scrollable view window with bar on the left with number for each line
-// fun for terminal - just like in any ide, terminal appears after clicking on run button and closes after
-// clicking on exit button on this terminal
+// Assume the script might run for a long time
+// Show live output of the script as it executes
+// Show errors from the execution/if the script couldn’t be interpreted
+// Show an indication whether the exit code of the last run was non-zero.
+// Highlight language keywords(from 10)
+// Make location descriptions of errors (e.g. “script:2:1: error: cannot find 'foo' in scope”) clickable,
+// so users can navigate to the exact cursor positions in code.
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -72,12 +80,24 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = { viewModel.executeScript() }, enabled = true) {
-            Text(if (uiState.isRunning) "Running..." else "Run Script")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                onClick = {
+                    viewModel.showProgress()
+                    viewModel.executeScript() },
+                enabled = !uiState.isRunning
+            ) {
+                Text(if (uiState.isRunning) "Running..." else "Run Script")
+            }
+
+            if (uiState.isRunning) {
+                Spacer(modifier = Modifier.width(8.dp))
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            }
         }
 
         if (uiState.showTerminal) {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
@@ -85,13 +105,17 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     .padding(8.dp)
 
             ) {
-                Text(
-                    text = if (uiState.isRunning) "Running..." else uiState.outputText,
-                    color = Color.White
-                )
+                item {
+                    Text(
+                        text = if (uiState.isRunning) "Running..." else uiState.outputText,
+                        color = Color.White
+                    )
+                }
 
-                Button(onClick = { viewModel.closeTerminal() }, modifier = Modifier.align(Alignment.End)) {
-                    Text("Close Terminal")
+                item {
+                    Button(onClick = { viewModel.closeTerminal() }, modifier = Modifier.align(Alignment.End)) {
+                        Text("Close Terminal")
+                    }
                 }
             }
         }

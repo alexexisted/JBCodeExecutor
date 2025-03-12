@@ -4,24 +4,45 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import utils.execute
+import java.io.BufferedReader
 import java.io.File
+import java.io.IOException
 import java.io.InputStreamReader
 
 class MainViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(MainUIState())
     val uiState = _uiState.asStateFlow()
 
+    fun showProgress() {
+        _uiState.update {
+            it.copy(
+                isRunning = true
+            )
+        }
+    }
+
     fun executeScript() {
+        _uiState.update {
+            it.copy(
+                showTerminal = true,
+                isRunning = true
+            )
+        }
+
         viewModelScope.execute(
             source = {
-                runKotlinScript(_uiState.value.enteredText)
+                runKotlinScript(_uiState.value.enteredText) { line ->
+                    _uiState.update {
+                        it.copy(
+                            outputText = it.outputText + line + "\n"
+                        )
+                    }
+                }
             },
-            onSuccess = { output ->
+            onSuccess = {
                 _uiState.update {
                     it.copy(
-                        outputText = output,
-                        showTerminal = true,
-                        isRunning = true
+                        isRunning = false
                     )
                 }
             },
@@ -29,7 +50,6 @@ class MainViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         outputText = error.toString(),
-                        showTerminal = true,
                         isRunning = false
                     )
                 }
@@ -72,7 +92,7 @@ class MainViewModel : ViewModel() {
             ?: throw IllegalStateException("Kotlin compiler not found. Please install it.")
     }
 
-    private fun runKotlinScript(script: String): String {
+    private fun runKotlinScript(script: String, onOutput: (String) -> Unit) {
         val kotlincPath = getKotlinCompilerPath()
 
         val scriptFile = File.createTempFile("script", ".kts").apply {
@@ -83,7 +103,20 @@ class MainViewModel : ViewModel() {
             .redirectErrorStream(true)
             .start()
 
-        return InputStreamReader(process.inputStream).readText()
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+
+        try {
+            reader.forEachLine { line ->
+                onOutput(line)
+            }
+        } catch (e: IOException) {
+            onOutput("Error reading script output: ${e.message}")
+        } finally {
+            reader.close()
+        }
+
+        process.waitFor()
     }
+
 }
 
