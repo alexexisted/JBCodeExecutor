@@ -10,6 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -18,6 +20,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -97,28 +100,42 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         }
 
         if (uiState.showTerminal) {
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
                     .background(Color.Black)
                     .padding(8.dp)
-
             ) {
-                item {
-                    Text(
-                        text = if (uiState.isRunning) "Running..." else uiState.outputText,
-                        color = Color.White
-                    )
+                val listState = rememberLazyListState()
+
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(uiState.outputText.lines()) { line ->
+                        Text(
+                            text = line,
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
 
-                item {
-                    Button(onClick = { viewModel.closeTerminal() }, modifier = Modifier.align(Alignment.End)) {
-                        Text("Close Terminal")
-                    }
+                LaunchedEffect(uiState.outputText) {
+                    listState.scrollToItem(uiState.outputText.lines().size - 1)
+                }
+
+                Button(
+                    onClick = { viewModel.closeTerminal() },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Close Terminal")
                 }
             }
         }
+
+
     }
 }
 

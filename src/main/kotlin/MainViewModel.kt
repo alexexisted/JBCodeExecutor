@@ -1,8 +1,10 @@
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import utils.execute
 import java.io.BufferedReader
 import java.io.File
@@ -92,30 +94,36 @@ class MainViewModel : ViewModel() {
             ?: throw IllegalStateException("Kotlin compiler not found. Please install it.")
     }
 
-    private fun runKotlinScript(script: String, onOutput: (String) -> Unit) {
-        val kotlincPath = getKotlinCompilerPath()
+    private suspend fun runKotlinScript(script: String, onOutput: (String) -> Unit) {
+        withContext(Dispatchers.IO) {
+            val kotlincPath = getKotlinCompilerPath()
 
-        val scriptFile = File.createTempFile("script", ".kts").apply {
-            writeText(script)
-        }
-
-        val process = ProcessBuilder(kotlincPath, "-script", scriptFile.absolutePath)
-            .redirectErrorStream(true)
-            .start()
-
-        val reader = BufferedReader(InputStreamReader(process.inputStream))
-
-        try {
-            reader.forEachLine { line ->
-                onOutput(line)
+            val scriptFile = File.createTempFile("script", ".kts").apply {
+                writeText(script)
             }
-        } catch (e: IOException) {
-            onOutput("Error reading script output: ${e.message}")
-        } finally {
-            reader.close()
-        }
 
-        process.waitFor()
+            val process = ProcessBuilder(kotlincPath, "-script", scriptFile.absolutePath)
+                .redirectErrorStream(true)
+                .start()
+
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+
+            try {
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    withContext(Dispatchers.Main) {
+                        onOutput(line)
+                    }
+                }
+            } catch (e: IOException) {
+                withContext(Dispatchers.Main) {
+                    onOutput("Error: ${e.message}")
+                }
+            } finally {
+                process.waitFor()
+                reader.close()
+            }
+        }
     }
 
 }
