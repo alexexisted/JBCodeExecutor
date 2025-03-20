@@ -26,6 +26,7 @@ class MainViewModel : ViewModel() {
     fun executeScript() {
         _uiState.update {
             it.copy(
+                outputText = "",
                 showTerminal = true,
                 isRunning = true
             )
@@ -33,13 +34,22 @@ class MainViewModel : ViewModel() {
 
         viewModelScope.execute(
             source = {
-                runKotlinScript(_uiState.value.enteredText) { line ->
-                    _uiState.update {
-                        it.copy(
-                            outputText = it.outputText + line + "\n"
-                        )
+                runKotlinScript(
+                    script = _uiState.value.enteredText,
+                    onOutput = { line ->
+                        _uiState.update {
+                            it.copy(outputText = it.outputText + line + "\n")
+                        }
+                    },
+                    onExitCode = { exitCode ->
+                        _uiState.update {
+                            it.copy(
+                                isRunning = false,
+                                outputText = it.outputText + "\nExit Code: $exitCode",
+                            )
+                        }
                     }
-                }
+                )
             },
             onSuccess = {
                 _uiState.update {
@@ -94,7 +104,8 @@ class MainViewModel : ViewModel() {
             ?: throw IllegalStateException("Kotlin compiler not found. Please install it.")
     }
 
-    private suspend fun runKotlinScript(script: String, onOutput: (String) -> Unit) {
+    private suspend
+    fun runKotlinScript(script: String, onOutput: (String) -> Unit, onExitCode: (Int) -> Unit) {
         withContext(Dispatchers.IO) {
             val kotlincPath = getKotlinCompilerPath()
 
@@ -121,6 +132,8 @@ class MainViewModel : ViewModel() {
                 }
             } finally {
                 process.waitFor()
+                val exitCode = process.exitValue()
+                withContext(Dispatchers.Main) { onExitCode(exitCode) }
                 reader.close()
             }
         }

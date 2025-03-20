@@ -1,7 +1,3 @@
-// Assume the script might run for a long time
-// Show live output of the script as it executes
-// Show errors from the execution/if the script couldn’t be interpreted
-// Show an indication whether the exit code of the last run was non-zero.
 // Highlight language keywords(from 10)
 // Make location descriptions of errors (e.g. “script:2:1: error: cannot find 'foo' in scope”) clickable,
 // so users can navigate to the exact cursor positions in code.
@@ -125,6 +121,14 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 LaunchedEffect(uiState.outputText) {
                     listState.scrollToItem(uiState.outputText.lines().size - 1)
                 }
+
+//                Text(
+//                    text = if (uiState.outputText.contains("Exit Code: 0")) "Success" else "Error",
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = if (uiState.outputText.contains("Exit Code: 0")) Color.Green else Color.Red
+//                )
+
 
                 Button(
                     onClick = { viewModel.closeTerminal() },
