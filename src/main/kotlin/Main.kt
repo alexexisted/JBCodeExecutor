@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.*
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,7 +88,9 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 Text(
                     text = uiState.highlightedText,
                     fontSize = 14.sp,
+                    fontFamily = FontFamily.Monospace,
                     color = Color.Black,
+                    letterSpacing = 0.5.sp,
                     modifier = Modifier.matchParentSize()
                 )
 
@@ -97,7 +100,12 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         viewModel.updateText(newText)
                         viewModel.updateHighlightedText(highlightKotlinSyntax(newText))
                     },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Transparent),
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        color = Color.Transparent,
+                        fontFamily = FontFamily.Monospace,
+                        letterSpacing = 0.5.sp,
+                    ),
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState)
@@ -142,7 +150,9 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         Text(
                             text = line,
                             color = Color.White,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Monospace,
+                            letterSpacing = 0.5.sp,
                         )
                     }
                 }
