@@ -1,4 +1,4 @@
-
+##Executor pf kotlin scripts
 
 - Basic script editing with syntax highlighting for Kotlin keywords.
 - Executes Kotlin scripts using kotlinc -script.
@@ -6,7 +6,7 @@
 - Shows execution errors and exit codes.
 - Provides an indicator for script execution status.
 
-###Prerequisites
+##Prerequisites
 
 Java Development Kit (JDK) 11+
 Kotlin Compiler (kotlinc)
