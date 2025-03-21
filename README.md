@@ -16,22 +16,19 @@ git clone git@github.com:alexexisted/JBCodeExecutor.git
 
 - Provides an indicator for script execution status.
 
-Installation
-
-Prerequisites
+**Prerequisites**
 
 Java Development Kit (JDK) 11+
 
 Kotlin Compiler (kotlinc)
-install it via **brew install kotlin**
+install it via 
+~~~bash
+brew install kotlin
+~~~
 
 Gradle (if building the project manually)
 
 **Steps**
-
-Clone this repository:
-
-git clone https://github.com/your-username/kotlin-script-editor.git
 cd kotlin-script-editor
 
 Open the project in Android Studio or a preferred Kotlin IDE.
@@ -41,7 +38,6 @@ Build and run the project.
 
 Launch the application.
 Make sure Kotlin is installed 
-or install it via **brew install kotlin**
 
 Write or paste Kotlin script into the editor.
 Click the Run Script button.
@@ -52,7 +48,9 @@ Running from Command Line
 
 
 You can run the project using Gradle:
-**./gradlew run**
+~~~bash
+./gradlew run
+~~~~
 
 **Known Issues**
 Syntax highlighting does not currently support custom user-defined keywords.
