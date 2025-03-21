@@ -26,28 +26,18 @@ git clone git@github.com:alexexisted/JBCodeExecutor.git
 
 **Navigate to the Project Directory:**
 ~~~bash
-cd kotlin-script-editor
+cd JBCodeExecutor
+~~~
+
+**run it**
+~~~bash
+./gradlew run
 ~~~
 
 **or**
 
 Open the project in Android Studio or a preferred Kotlin IDE.
 Build and run the project.
-
-**How to Start**
-
-Start Kotlin script into the editor.
-Click the Run Script button.
-
-Observe the output pane for results.
-
-Running from Command Line
-
-
-You can run the project using Gradle:
-~~~bash
-./gradlew run
-~~~~
 
 ### Known Issues
 Syntax highlighting does not currently support custom user-defined keywords.
