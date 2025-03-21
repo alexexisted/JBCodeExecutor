@@ -1,4 +1,10 @@
-Kotlin Script Editor
+## Clone the Repository
+
+To clone this repository, use the following command:
+
+~~~bash
+git clone git@github.com:alexexisted/JBCodeExecutor.git
+~~~
 
 - Basic script editing with syntax highlighting for Kotlin keywords.
 
