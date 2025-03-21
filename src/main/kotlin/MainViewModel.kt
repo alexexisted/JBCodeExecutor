@@ -1,3 +1,4 @@
+import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -88,6 +89,14 @@ class MainViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 enteredText = text
+            )
+        }
+    }
+
+    fun updateHighlightedText(text: AnnotatedString) {
+        _uiState.update {
+            it.copy(
+                highlightedText = text
             )
         }
     }

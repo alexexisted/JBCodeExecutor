@@ -1,7 +1,3 @@
-// Highlight language keywords(from 10)
-// Make location descriptions of errors (e.g. “script:2:1: error: cannot find 'foo' in scope”) clickable,
-// so users can navigate to the exact cursor positions in code.
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,7 +9,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,8 +30,28 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
+    fun highlightKotlinSyntax(text: String): AnnotatedString {
+        val regex = "\\b(${uiState.kotlinKeywords.joinToString("|")})\\b".toRegex()
+        return buildAnnotatedString {
+            var lastIndex = 0
+            regex.findAll(text).forEach { matchResult ->
+                val start = matchResult.range.first
+                val end = matchResult.range.last + 1
+
+                append(text.substring(lastIndex, start))
+
+                withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.Bold)) {
+                    append(text.substring(start, end))
+                }
+
+                lastIndex = end
+            }
+            append(text.substring(lastIndex))
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Kotlin Script Editor", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("executor", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -67,14 +82,26 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 }
             }
 
-            BasicTextField(
-                value = uiState.enteredText,
-                onValueChange = { newText -> viewModel.updateText(newText) },
-                textStyle = TextStyle(fontSize = 14.sp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            )
+            Box(Modifier.fillMaxSize()) {
+                Text(
+                    text = uiState.highlightedText,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier.matchParentSize()
+                )
+
+                BasicTextField(
+                    value = uiState.enteredText,
+                    onValueChange = { newText ->
+                        viewModel.updateText(newText)
+                        viewModel.updateHighlightedText(highlightKotlinSyntax(newText))
+                    },
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Transparent),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -83,7 +110,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             Button(
                 onClick = {
                     viewModel.showProgress()
-                    viewModel.executeScript() },
+                    viewModel.executeScript()
+                },
                 enabled = !uiState.isRunning
             ) {
                 Text(if (uiState.isRunning) "Running..." else "Run Script")
