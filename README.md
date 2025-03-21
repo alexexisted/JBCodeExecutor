@@ -39,11 +39,6 @@ cd JBCodeExecutor
 Open the project in Android Studio or a preferred Kotlin IDE.
 Build and run the project.
 
-### Known Issues
-Syntax highlighting does not currently support custom user-defined keywords.
-
-Feel free to open issues and submit pull requests to improve the editor!
-
 ### Video:
 https://github.com/user-attachments/assets/073372a2-a86d-464c-b6c6-31273f770602
 
