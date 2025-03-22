@@ -40,5 +40,7 @@ Open the project in Android Studio or a preferred Kotlin IDE.
 Build and run the project.
 
 ### Video:
-https://github.com/user-attachments/assets/073372a2-a86d-464c-b6c6-31273f770602
+
+https://github.com/user-attachments/assets/959d2e5c-fa4f-43aa-99d9-0351817fec57
+
 
