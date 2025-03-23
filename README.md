@@ -15,7 +15,6 @@ install it via:
 ~~~bash
 brew install kotlin
 ~~~
-Gradle (if building the project manually)
 
 ### Steps
 
